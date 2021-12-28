@@ -2,7 +2,7 @@
 FROM alpine:3.14.3 as release-downloader
 
 # The koel version to download
-ARG KOEL_VERSION_REF=v5.1.10
+ARG KOEL_VERSION_REF=v5.1.11
 
 # Install curl to download the release tar.gz
 RUN apk add --no-cache curl
@@ -107,6 +107,12 @@ ENTRYPOINT ["koel-entrypoint"]
 CMD ["apache2-foreground"]
 
 EXPOSE 80
+
+# Cronjob for music sync
+RUN apt-get update && apt-get install -y cron
+COPY music-sync-crontab /etc/cron.d/music-sync-crontab
+RUN chmod 0644 /etc/cron.d/music-sync-crontab &&\
+    crontab /etc/cron.d/music-sync-crontab
 
 # Check that the homepage is displayed
 HEALTHCHECK --interval=5m --timeout=5s \
